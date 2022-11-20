@@ -57,6 +57,7 @@ endfunction
 
 
 let s:database = get(g:, 'hoogle_database', './.haskell.hoo')
+let s:server = get(g:, 'hoogle_server', 'http://localhost:8002/')
 
 function! s:Source(query) abort
   let hoogle = printf('%s --json -d %s --count=%s %s 2> /dev/null | ', g:hoogle_path, s:database, s:count, shellescape(a:query))
@@ -93,6 +94,7 @@ function! s:Handler(bang, lines) abort
       let link = trim(system(printf("jq -r --arg a \"%s\" '. | select(.fzfhquery == \$a) | .url' %s",
                                   \ item,
                                   \ s:cache_file)))
+      let link = substitute(link, "^file://", s:server .. "file", "")
       call system(s:open_tool .. " '" .. link .. "'")
       call s:Message('The link was sent to a default browser')
     elseif keypress ==? s:copy_type
